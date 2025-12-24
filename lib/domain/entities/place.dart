@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:location/domain/entities/review.dart';
 
 class Place extends Equatable {
   final int id;
@@ -9,6 +10,9 @@ class Place extends Equatable {
   final double distance;
   final String? description;
   final String? contact;
+  final double? rating;
+  final String? imageUrl;
+  final List<Review>? reviews;
 
   const Place({
     required this.id,
@@ -19,6 +23,9 @@ class Place extends Equatable {
     required this.distance,
     this.description,
     this.contact,
+    this.rating,
+    this.imageUrl,
+    this.reviews,
   });
 
   @override
@@ -31,5 +38,8 @@ class Place extends Equatable {
     distance,
     description,
     contact,
+    rating,
+    imageUrl,
+    reviews,
   ];
 }

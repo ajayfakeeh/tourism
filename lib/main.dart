@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/di/injector.dart';
 import 'package:location/presentation/cubit/auth/auth_cubit.dart';
 import 'package:location/presentation/pages/login_page.dart';
+import 'package:location/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,11 +22,9 @@ class MyApp extends StatelessWidget {
         // Other Cubits are provided locally in pages, but global ones could go here
       ],
       child: MaterialApp(
-        title: 'Flutter Clean Arch Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
+        title: 'Location App',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
         home: const LoginPage(),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/di/injector.dart';
 import 'package:location/presentation/cubit/places/places_cubit.dart';
 import 'package:location/presentation/cubit/places/places_state.dart';
+import 'package:location/presentation/pages/hotel_details_page.dart';
 
 class PlacesPage extends StatelessWidget {
   final String type;
@@ -30,6 +31,16 @@ class PlacesPage extends StatelessWidget {
                   return Card(
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
+                      onTap: () {
+                        if (place.type == 'hotel') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HotelDetailsPage(place: place),
+                            ),
+                          );
+                        }
+                      },
                       leading: Icon(
                         place.type == 'hotel'
                             ? Icons.hotel
