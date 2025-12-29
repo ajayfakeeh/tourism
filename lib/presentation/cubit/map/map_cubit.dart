@@ -93,4 +93,46 @@ class MapCubit extends Cubit<MapState> {
       }
     }
   }
+
+  Future<void> searchLocation(String query) async {
+    // Mock Search Implementation
+    emit(MapLoading());
+    await Future.delayed(const Duration(seconds: 1)); // Simulate API delay
+
+    // For demo: Always find "Osaka Castle" or similar mock location if query is not empty
+    const mockLocation = LatLng(34.6873, 135.5262); // Osaka Castle Coords
+
+    final currentState = state;
+    if (currentState is MapLoaded) {
+      // It should be loaded to search
+      emit(
+        currentState.copyWith(
+          currentLocation:
+              mockLocation, // Move "current" or center to search result for demo
+          markers: {
+            Marker(
+              markerId: const MarkerId('searched'),
+              position: mockLocation,
+              infoWindow: InfoWindow(title: query),
+            ),
+          },
+        ),
+      );
+    } else {
+      // Fallback if somehow not loaded
+      emit(
+        MapLoaded(
+          currentLocation: mockLocation,
+          markers: {
+            Marker(
+              markerId: const MarkerId('searched'),
+              position: mockLocation,
+              infoWindow: InfoWindow(title: query),
+            ),
+          },
+          polylines: {},
+        ),
+      );
+    }
+  }
 }

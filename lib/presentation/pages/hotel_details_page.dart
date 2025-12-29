@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:location/domain/entities/place.dart';
+import 'package:location/core/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HotelDetailsPage extends StatelessWidget {
@@ -8,8 +9,10 @@ class HotelDetailsPage extends StatelessWidget {
   const HotelDetailsPage({super.key, required this.place});
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       body: Stack(
         children: [
           CustomScrollView(
@@ -18,88 +21,145 @@ class HotelDetailsPage extends StatelessWidget {
                 expandedHeight: 250.0,
                 floating: false,
                 pinned: true,
+                backgroundColor: AppTheme.backgroundColor,
+                iconTheme: const IconThemeData(
+                  color: Colors.white,
+                ), // Contrast for image
                 flexibleSpace: FlexibleSpaceBar(
                   background: place.imageUrl != null
-                      ? Image.network(
-                          place.imageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(color: Colors.grey),
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(
+                              place.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(color: Colors.grey),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.black.withOpacity(0.4),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         )
                       : Container(color: Colors.grey),
                 ),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        place.name,
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              place.name,
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textColor,
+                                  ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.accentColor.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: _RatingBar(rating: place.rating ?? 0),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      _RatingBar(rating: place.rating ?? 0),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                       Text(
-                        'Description',
+                        'About',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         place.description ?? "No description available.",
-                        style: Theme.of(context).textTheme.bodyLarge,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          height: 1.5,
+                          color: AppTheme.textColor.withOpacity(0.8),
+                        ),
                       ),
                       const SizedBox(height: 24),
                       Text(
                         'Reviews',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       if (place.reviews != null && place.reviews!.isNotEmpty)
                         ...place.reviews!.map(
-                          (review) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: Card(
-                              elevation: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          (review) => Container(
+                            margin: const EdgeInsets.only(bottom: 12.0),
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          review.userName,
-                                          style: const TextStyle(
+                                    Text(
+                                      review.userName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
                                             fontWeight: FontWeight.bold,
                                           ),
-                                        ),
-                                        _RatingBar(
-                                          rating: review.rating,
-                                          size: 16,
-                                        ),
-                                      ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(review.comment),
+                                    _RatingBar(rating: review.rating, size: 16),
                                   ],
                                 ),
-                              ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  review.comment,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
                             ),
                           ),
                         )
                       else
-                        const Text("No reviews yet."),
-                      const SizedBox(height: 80), // Space for bottom buttons
+                        Text(
+                          "No reviews yet.",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      const SizedBox(height: 100), // Space for bottom buttons
                     ],
                   ),
                 ),
@@ -111,8 +171,20 @@ class HotelDetailsPage extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              padding: const EdgeInsets.all(20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -123,17 +195,18 @@ class HotelDetailsPage extends StatelessWidget {
                   ),
                   _ActionButton(
                     icon: Icons.video_library,
-                    label: 'Social Videos',
+                    label: 'Videos',
                     onTap: () {},
                   ),
                   _ActionButton(
                     icon: Icons.local_cafe,
-                    label: 'Refreshments',
+                    label: 'Cafe',
                     onTap: () {},
                   ),
                   _ActionButton(
                     icon: Icons.directions,
-                    label: 'Directions',
+                    label: 'Go',
+                    isPrimary: true,
                     onTap: () async {
                       final url = Uri.parse(
                         'https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}',
@@ -160,25 +233,22 @@ class _RatingBar extends StatelessWidget {
   final double rating;
   final double size;
 
-  const _RatingBar({required this.rating, this.size = 24});
+  const _RatingBar({required this.rating, this.size = 20});
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        ...List.generate(5, (index) {
-          if (index < rating.floor()) {
-            return Icon(Icons.star, color: Colors.amber, size: size);
-          } else if (index < rating && rating % 1 != 0) {
-            return Icon(Icons.star_half, color: Colors.amber, size: size);
-          } else {
-            return Icon(Icons.star_border, color: Colors.amber, size: size);
-          }
-        }),
-        const SizedBox(width: 8),
+        Icon(Icons.star, color: AppTheme.accentColor, size: size),
+        const SizedBox(width: 4),
         Text(
           rating.toStringAsFixed(1),
-          style: TextStyle(fontSize: size * 0.7, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: size * 0.8,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textColor,
+          ),
         ),
       ],
     );
@@ -189,11 +259,13 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool isPrimary;
 
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.isPrimary = false,
   });
 
   @override
@@ -201,13 +273,40 @@ class _ActionButton extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FloatingActionButton(
-          heroTag: label,
-          onPressed: onTap,
-          child: Icon(icon),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isPrimary
+                  ? AppTheme.primaryColor
+                  : AppTheme.backgroundColor,
+              shape: BoxShape.circle,
+              boxShadow: [
+                if (isPrimary)
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: isPrimary ? Colors.white : AppTheme.textColor,
+              size: 24,
+            ),
+          ),
         ),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isPrimary ? FontWeight.bold : FontWeight.w500,
+            color: isPrimary ? AppTheme.primaryColor : AppTheme.subtitleColor,
+          ),
+        ),
       ],
     );
   }

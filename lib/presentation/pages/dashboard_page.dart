@@ -5,6 +5,7 @@ import 'package:location/presentation/cubit/dashboard/dashboard_cubit.dart';
 import 'package:location/presentation/pages/map_page.dart';
 import 'package:location/presentation/pages/places_page.dart';
 import 'package:location/presentation/pages/add_place_page.dart';
+import 'package:location/presentation/pages/homepage.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -46,9 +47,7 @@ class DashboardPage extends StatelessWidget {
                         color: Colors.blueAccent,
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const PlacesPage(type: 'tourist'),
-                          ),
+                          MaterialPageRoute(builder: (_) => const HomePage()),
                         ),
                       ),
                       _DashboardCard(

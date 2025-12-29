@@ -6,19 +6,36 @@ import 'package:location/presentation/cubit/map/map_cubit.dart';
 import 'package:location/presentation/cubit/map/map_state.dart';
 
 class MapPage extends StatelessWidget {
-  const MapPage({super.key});
+  final bool isSelecting;
+
+  const MapPage({super.key, this.isSelecting = false});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<MapCubit>()..loadCurrentLocation(),
-      child: const MapView(),
+      child: MapView(isSelecting: isSelecting),
     );
   }
 }
 
-class MapView extends StatelessWidget {
-  const MapView({super.key});
+class MapView extends StatefulWidget {
+  final bool isSelecting;
+
+  const MapView({super.key, required this.isSelecting});
+
+  @override
+  State<MapView> createState() => _MapViewState();
+}
+
+class _MapViewState extends State<MapView> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +68,77 @@ class MapView extends StatelessWidget {
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                 ),
-                if (state.distance != null)
+                if (widget.isSelecting) ...[
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search location...',
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(16),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: () {
+                              // Mock Search
+                              if (_searchController.text.isNotEmpty) {
+                                context.read<MapCubit>().searchLocation(
+                                  _searchController.text,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        onSubmitted: (value) {
+                          if (value.isNotEmpty) {
+                            context.read<MapCubit>().searchLocation(value);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        // Return the location name (using search text or default)
+                        Navigator.pop(
+                          context,
+                          _searchController.text.isEmpty
+                              ? 'Custom Location'
+                              : _searchController.text,
+                        );
+                      },
+                      child: const Text(
+                        'Select This Location',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ] else if (state.distance != null)
                   Positioned(
                     bottom: 20,
                     left: 20,
