@@ -9,6 +9,8 @@ import 'package:location/domain/repositories/auth_repository.dart';
 import 'package:location/domain/repositories/map_repository.dart';
 import 'package:location/domain/repositories/places_repository.dart';
 import 'package:location/domain/usecases/login_usecase.dart';
+import 'package:location/domain/usecases/register_usecase.dart';
+import 'package:location/domain/usecases/forgot_password_usecase.dart';
 import 'package:location/presentation/cubit/auth/auth_cubit.dart';
 import 'package:location/presentation/cubit/map/map_cubit.dart';
 import 'package:location/presentation/cubit/places/add_place_cubit.dart';
@@ -37,9 +39,17 @@ Future<void> initDependencies() async {
 
   // Use Cases
   getIt.registerLazySingleton(() => LoginUseCase(getIt()));
+  getIt.registerLazySingleton(() => RegisterUseCase(getIt()));
+  getIt.registerLazySingleton(() => ForgotPasswordUseCase(getIt()));
 
   // Cubits
-  getIt.registerFactory(() => AuthCubit(loginUseCase: getIt()));
+  getIt.registerFactory(
+    () => AuthCubit(
+      loginUseCase: getIt(),
+      registerUseCase: getIt(),
+      forgotPasswordUseCase: getIt(),
+    ),
+  );
   getIt.registerFactory(() => MapCubit(mapRepository: getIt()));
   getIt.registerFactory(() => PlacesCubit(repository: getIt()));
   getIt.registerFactory(() => AddPlaceCubit(repository: getIt()));

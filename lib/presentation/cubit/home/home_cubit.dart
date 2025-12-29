@@ -124,8 +124,7 @@ class HomeCubit extends Cubit<HomeState> {
           foodSpotsOnWay: foodSpotsOnWay,
           forgotToSave: forgotToSave,
           justBeforeArrive: justBeforeArrive,
-          nearDestination:
-              nearDestination, // Initially show all or default logic? User said "All Food" is a category.
+          nearDestination: nearDestination,
           currentLocation: 'Osaka Castle',
           categories: categories,
           selectedCategoryId: 'all',
@@ -149,20 +148,111 @@ class HomeCubit extends Cubit<HomeState> {
     };
   }
 
-  // Mock separate API call for future weather
-  Future<Map<String, dynamic>> fetchFutureWeather(DateTime date) async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+  void toggleForecastVisibility() {
+    if (state is HomeLoaded) {
+      final currentState = state as HomeLoaded;
+      final newVisibility = !currentState.isForecastVisible;
 
-    // Mock data based on date (simple randomization or static)
-    return {
-      'date': '${date.day}/${date.month}',
-      'temperature': '22°C',
-      'condition': 'Cloudy',
-      'humidity': '65%',
-      'wind': '12 km/h',
-      'icon': 'cloud',
-      'description': 'Clouds and sun',
-    };
+      emit(
+        HomeLoaded(
+          foodSpotsOnWay: currentState.foodSpotsOnWay,
+          forgotToSave: currentState.forgotToSave,
+          justBeforeArrive: currentState.justBeforeArrive,
+          nearDestination: currentState.nearDestination,
+          currentLocation: currentState.currentLocation,
+          categories: currentState.categories,
+          selectedCategoryId: currentState.selectedCategoryId,
+          weather: currentState.weather,
+          forecast: currentState.forecast,
+          isForecastLoading: currentState.isForecastLoading,
+          isForecastVisible: newVisibility,
+        ),
+      );
+
+      // Auto-load if becoming visible and empty
+      if (newVisibility && currentState.forecast.isEmpty) {
+        loadForecast();
+      }
+    }
+  }
+
+  // Load forecast data (Initial or Pagination)
+  Future<void> loadForecast() async {
+    if (state is HomeLoaded) {
+      final currentState = state as HomeLoaded;
+      if (currentState.isForecastLoading) return;
+
+      emit(
+        HomeLoaded(
+          foodSpotsOnWay: currentState.foodSpotsOnWay,
+          forgotToSave: currentState.forgotToSave,
+          justBeforeArrive: currentState.justBeforeArrive,
+          nearDestination: currentState.nearDestination,
+          currentLocation: currentState.currentLocation,
+          categories: currentState.categories,
+          selectedCategoryId: currentState.selectedCategoryId,
+          weather: currentState.weather,
+          forecast: currentState.forecast,
+          isForecastLoading: true,
+          isForecastVisible: currentState.isForecastVisible,
+        ),
+      );
+
+      await Future.delayed(const Duration(seconds: 1)); // Simulate delay
+
+      final currentCount = currentState.forecast.length;
+      final now = DateTime.now().add(Duration(days: currentCount));
+      final List<Map<String, dynamic>> newItems = [];
+
+      for (int i = 0; i < 7; i++) {
+        final date = now.add(Duration(days: i));
+        final isSunny = (date.day + i) % 2 == 0;
+        newItems.add({
+          'date': '${date.day}/${date.month}',
+          'dayName': _getDayName(date.weekday),
+          'temperature': '${20 + (date.day % 5)}°C',
+          'condition': isSunny ? 'Sunny' : 'Cloudy',
+          'icon': isSunny ? 'sunny' : 'cloud',
+        });
+      }
+
+      emit(
+        HomeLoaded(
+          foodSpotsOnWay: currentState.foodSpotsOnWay,
+          forgotToSave: currentState.forgotToSave,
+          justBeforeArrive: currentState.justBeforeArrive,
+          nearDestination: currentState.nearDestination,
+          currentLocation: currentState.currentLocation,
+          categories: currentState.categories,
+          selectedCategoryId: currentState.selectedCategoryId,
+          weather: currentState.weather,
+          forecast: [...currentState.forecast, ...newItems],
+          isForecastLoading: false,
+          isForecastVisible: currentState.isForecastVisible,
+        ),
+      );
+    }
+  }
+
+  String _getDayName(int weekday) {
+    switch (weekday) {
+      case 1:
+        return 'Mon';
+      case 2:
+        return 'Tue';
+      case 3:
+        return 'Wed';
+      case 4:
+        return 'Thu';
+      case 5:
+        return 'Fri';
+      case 6:
+        return 'Sat';
+      case 7:
+        return 'Sun';
+      default:
+        return '';
+    }
   }
 
   void updateLocation(String newLocation) {
@@ -178,6 +268,9 @@ class HomeCubit extends Cubit<HomeState> {
           categories: currentState.categories,
           selectedCategoryId: currentState.selectedCategoryId,
           weather: currentState.weather,
+          forecast: currentState.forecast,
+          isForecastLoading: currentState.isForecastLoading,
+          isForecastVisible: currentState.isForecastVisible,
         ),
       );
     }
@@ -188,10 +281,6 @@ class HomeCubit extends Cubit<HomeState> {
       final currentState = state as HomeLoaded;
 
       // Mock Filtering Logic
-      // In a real app, we might fetch new data or filter a full list.
-      // Here we will just reuse the mock data definition (duplicated for simplicity or defined as a static list in class).
-      // For this step I will re-define the full list to filter from.
-
       final allDestinations = [
         {
           'id': '1',
@@ -254,6 +343,9 @@ class HomeCubit extends Cubit<HomeState> {
           categories: currentState.categories,
           selectedCategoryId: categoryId,
           weather: currentState.weather,
+          forecast: currentState.forecast,
+          isForecastLoading: currentState.isForecastLoading,
+          isForecastVisible: currentState.isForecastVisible,
         ),
       );
     }

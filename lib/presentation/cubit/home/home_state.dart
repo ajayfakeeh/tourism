@@ -13,6 +13,9 @@ class HomeLoaded extends HomeState {
   final List<Map<String, dynamic>> categories;
   final String selectedCategoryId;
   final Map<String, dynamic>? weather;
+  final List<Map<String, dynamic>> forecast;
+  final bool isForecastLoading;
+  final bool isForecastVisible;
 
   HomeLoaded({
     required this.foodSpotsOnWay,
@@ -23,6 +26,9 @@ class HomeLoaded extends HomeState {
     required this.categories,
     required this.selectedCategoryId,
     this.weather,
+    this.forecast = const [],
+    this.isForecastLoading = false,
+    this.isForecastVisible = false,
   });
 }
 

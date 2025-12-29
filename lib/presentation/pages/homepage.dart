@@ -46,7 +46,22 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 24),
                       const _HeroSection(),
                       const SizedBox(height: 24),
-                      _CurrentRouteCard(weather: state.weather),
+                      _CurrentRouteCard(
+                        weather: state.weather,
+                        isForecastVisible: state.isForecastVisible,
+                      ),
+                      const SizedBox(height: 16),
+                      // Embedded Forecast Section
+                      if (state.isForecastVisible &&
+                          (state.forecast.isNotEmpty ||
+                              state.isForecastLoading))
+                        _ForecastSection(
+                          forecast: state.forecast,
+                          isLoading: state.isForecastLoading,
+                          onLoadMore: () {
+                            context.read<HomeCubit>().loadForecast();
+                          },
+                        ),
                       const SizedBox(height: 24),
                       const _SectionHeader(
                         title: 'Food Spots On Your Way',
@@ -186,8 +201,9 @@ class _HeroSection extends StatelessWidget {
 
 class _CurrentRouteCard extends StatelessWidget {
   final Map<String, dynamic>? weather;
+  final bool isForecastVisible;
 
-  const _CurrentRouteCard({this.weather});
+  const _CurrentRouteCard({this.weather, this.isForecastVisible = false});
 
   @override
   Widget build(BuildContext context) {
@@ -238,31 +254,9 @@ class _CurrentRouteCard extends StatelessWidget {
             children: [
               if (weather != null) ...[
                 InkWell(
-                  onTap: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 7)),
-                    );
-                    if (picked != null && context.mounted) {
-                      // Show loading dialog
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) =>
-                            const Center(child: CircularProgressIndicator()),
-                      );
-
-                      final weatherData = await context
-                          .read<HomeCubit>()
-                          .fetchFutureWeather(picked);
-
-                      if (context.mounted) {
-                        Navigator.pop(context); // Close loading
-                        _showWeatherDialog(context, weatherData);
-                      }
-                    }
+                  onTap: () {
+                    final cubit = context.read<HomeCubit>();
+                    cubit.toggleForecastVisibility();
                   },
                   child: Row(
                     children: [
@@ -282,162 +276,142 @@ class _CurrentRouteCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(
-                        Icons.arrow_drop_down,
-                        size: 16,
-                        color: Colors.grey,
+                      Icon(
+                        isForecastVisible
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        size: 18,
+                        color: Colors.black54,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 4),
-              ],
-              const Text(
-                '45 min left',
-                style: TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  weather!['condition'],
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.subtitleColor,
+                  ),
                 ),
-              ),
-              Text(
-                '32 km',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppTheme.subtitleColor),
-              ),
+              ],
             ],
           ),
         ],
       ),
     );
   }
-
-  void _showWeatherDialog(BuildContext context, Map<String, dynamic> weather) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.blue.shade400, Colors.blue.shade800],
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Weather on ${weather['date']}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Icon(
-                weather['icon'] == 'cloud' ? Icons.cloud : Icons.wb_sunny,
-                size: 64,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                weather['temperature'],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                weather['condition'],
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _WeatherDetailItem(
-                      icon: Icons.water_drop,
-                      label: 'Humidity',
-                      value: weather['humidity'],
-                    ),
-                    _WeatherDetailItem(
-                      icon: Icons.air,
-                      label: 'Wind',
-                      value: weather['wind'],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue.shade800,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
-class _WeatherDetailItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
+class _ForecastSection extends StatelessWidget {
+  final List<Map<String, dynamic>> forecast;
+  final bool isLoading;
+  final VoidCallback onLoadMore;
 
-  const _WeatherDetailItem({
-    required this.icon,
-    required this.label,
-    required this.value,
+  const _ForecastSection({
+    required this.forecast,
+    required this.isLoading,
+    required this.onLoadMore,
   });
 
   @override
   Widget build(BuildContext context) {
+    // If we have data or are loading, show the section
+    if (forecast.isEmpty && !isLoading) return const SizedBox.shrink();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: Colors.white70, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Text(
+            '7-Day Forecast',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 160, // Height for the cards
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: forecast.length + 1,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              if (index == forecast.length) {
+                return Center(
+                  child: isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : TextButton(
+                          onPressed: onLoadMore,
+                          child: const Text('Load More'),
+                        ),
+                );
+              }
+              final day = forecast[index];
+              return _WeatherDayCard(day: day);
+            },
+          ),
         ),
       ],
+    );
+  }
+}
+
+class _WeatherDayCard extends StatelessWidget {
+  final Map<String, dynamic> day;
+
+  const _WeatherDayCard({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.withOpacity(0.2)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            day['dayName'],
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            day['date'],
+            style: const TextStyle(fontSize: 12, color: Colors.black45),
+          ),
+          const SizedBox(height: 8),
+          Icon(
+            day['icon'] == 'sunny' ? Icons.wb_sunny : Icons.cloud,
+            color: Colors.orange,
+            size: 32,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            day['temperature'],
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            day['condition'],
+            style: const TextStyle(fontSize: 11, color: Colors.black54),
+          ),
+        ],
+      ),
     );
   }
 }
