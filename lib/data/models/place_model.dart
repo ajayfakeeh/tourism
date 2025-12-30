@@ -14,6 +14,7 @@ class PlaceModel extends Place {
     super.rating,
     super.imageUrl,
     super.reviews,
+    super.tags, // Initialize tags
   });
 
   factory PlaceModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +32,7 @@ class PlaceModel extends Place {
       reviews: (json['reviews'] as List<dynamic>?)
           ?.map((e) => Review.fromJson(e as Map<String, dynamic>))
           .toList(),
+      tags: (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
     );
   }
 
@@ -47,6 +49,7 @@ class PlaceModel extends Place {
       'rating': rating,
       'imageUrl': imageUrl,
       'reviews': reviews?.map((e) => e.toJson()).toList(),
+      'tags': tags,
     };
   }
 }

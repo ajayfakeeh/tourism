@@ -63,6 +63,17 @@ class HomePage extends StatelessWidget {
                           },
                         ),
                       const SizedBox(height: 24),
+                      if (state.weatherRecommendations.isNotEmpty) ...[
+                        const _SectionHeader(
+                          title: 'Perfect for this Weather',
+                          actionText: 'See All',
+                        ),
+                        const SizedBox(height: 16),
+                        _WeatherRecommendationList(
+                          spots: state.weatherRecommendations,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                       const _SectionHeader(
                         title: 'Food Spots On Your Way',
                         actionText: 'See Route',
@@ -935,6 +946,148 @@ class _NearDestinationList extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class _WeatherRecommendationList extends StatelessWidget {
+  final List<Map<String, dynamic>> spots;
+  const _WeatherRecommendationList({required this.spots});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200, // Slightly shorter than the main food list
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: spots.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final spot = spots[index];
+          return _WeatherPlaceCard(spot: spot);
+        },
+      ),
+    );
+  }
+}
+
+class _WeatherPlaceCard extends StatelessWidget {
+  final Map<String, dynamic> spot;
+
+  const _WeatherPlaceCard({required this.spot});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 160,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background Image
+            Image.network(spot['image'], fit: BoxFit.cover),
+            // Gradient Overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                ),
+              ),
+            ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Weather Match Badge
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.5),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons
+                              .wb_sunny_outlined, // Dynamic icon could be passed here
+                          color: Colors.white,
+                          size: 10,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Mood Match',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    spot['name'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        spot['rating'].toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        spot['distance'].split(' ').first, // extract "5km"
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

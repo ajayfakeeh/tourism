@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/core/theme/app_theme.dart';
 import 'package:location/presentation/cubit/auth/auth_cubit.dart';
 import 'package:location/presentation/cubit/auth/auth_state.dart';
-import 'package:location/presentation/pages/homepage.dart';
-import 'package:location/presentation/pages/registration_page.dart';
 import 'package:location/presentation/pages/forgot_password_page.dart';
+import 'package:location/presentation/pages/main_screen.dart';
+import 'package:location/presentation/pages/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
           if (state is AuthSuccess) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
+              MaterialPageRoute(builder: (context) => const MainScreen()),
             );
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(

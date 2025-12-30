@@ -1,7 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/presentation/cubit/home/home_state.dart';
+import 'package:location/data/datasources/mock_weather_service.dart';
+import 'package:location/data/datasources/weather_mood_mapper.dart';
 
 class HomeCubit extends Cubit<HomeState> {
+  final _weatherService = MockWeatherService();
+
   HomeCubit() : super(HomeInitial());
 
   Future<void> loadHomeData() async {
@@ -21,6 +25,7 @@ class HomeCubit extends Cubit<HomeState> {
           'price': '\$\$',
           'distance': '12 km away',
           'detour': '2 min detour',
+          'tags': ['cozy', 'hot_beverage'],
         },
         {
           'name': 'El Pueblo',
@@ -31,6 +36,44 @@ class HomeCubit extends Cubit<HomeState> {
           'price': '\$\$',
           'distance': '18 km away',
           'detour': '5 min detour',
+          'tags': ['spicy'],
+        },
+      ];
+
+      // Additional data specifically for weather recommendations
+      final extraPlaces = [
+        {
+          'name': 'Spicy Treats',
+          'image':
+              'https://images.unsplash.com/photo-1596797038530-2c107229654b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1035&q=80',
+          'rating': 4.7,
+          'cuisine': 'Indian',
+          'price': '\$',
+          'distance': '5 km away',
+          'detour': '1 min detour',
+          'tags': ['spicy', 'hot_beverage', 'cozy'],
+        },
+        {
+          'name': 'Tea Valley',
+          'image':
+              'https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=1021&q=80',
+          'rating': 4.9,
+          'cuisine': 'Cafe',
+          'price': '\$',
+          'distance': '2 km away',
+          'detour': '5 min detour',
+          'tags': ['tea', 'hot_beverage', 'cozy', 'view'],
+        },
+        {
+          'name': 'Cool Scoops',
+          'image':
+              'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80',
+          'rating': 4.5,
+          'cuisine': 'Dessert',
+          'price': '\$',
+          'distance': '1 km away',
+          'detour': '0 min detour',
+          'tags': ['ice_cream', 'cold_beverage', 'outdoor', 'sunny'],
         },
       ];
 
@@ -116,8 +159,25 @@ class HomeCubit extends Cubit<HomeState> {
         {'id': '4', 'name': 'Hotels'},
       ];
 
-      // Simulate separate Weather API call
-      final weather = await _fetchWeatherData();
+      // Fetch Weather logic
+      final weatherEntity = await _weatherService.getCurrentWeather();
+      final weatherMap = {
+        'temperature': '${weatherEntity.temperature.toStringAsFixed(0)}°C',
+        'condition': weatherEntity.condition,
+        'icon': weatherEntity.condition.toLowerCase().contains('rain')
+            ? 'cloud'
+            : 'sunny',
+      };
+
+      // Determine Mood
+      final moodTags = WeatherMoodMapper.getTagsForWeather(weatherEntity);
+
+      // Filter Recommendations
+      final allPlaces = [...foodSpotsOnWay, ...extraPlaces];
+      final weatherRecommendations = allPlaces.where((place) {
+        final tags = place['tags'] as List<String>? ?? [];
+        return tags.any((tag) => moodTags.contains(tag));
+      }).toList();
 
       emit(
         HomeLoaded(
@@ -128,24 +188,13 @@ class HomeCubit extends Cubit<HomeState> {
           currentLocation: 'Osaka Castle',
           categories: categories,
           selectedCategoryId: 'all',
-          weather: weather,
+          weather: weatherMap,
+          weatherRecommendations: weatherRecommendations,
         ),
       );
     } catch (e) {
-      emit(HomeError('Failed to load data'));
+      emit(HomeError('Failed to load data: $e'));
     }
-  }
-
-  // Mock separate API call for weather
-  Future<Map<String, dynamic>> _fetchWeatherData() async {
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-    ); // Simulate network delay
-    return {
-      'temperature': '24°C',
-      'condition': 'Sunny',
-      'icon': 'sunny', // Simple string identifier for now
-    };
   }
 
   void toggleForecastVisibility() {

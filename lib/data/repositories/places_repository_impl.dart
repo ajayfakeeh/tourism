@@ -39,6 +39,7 @@ class PlacesRepositoryImpl implements PlacesRepository {
             comment: 'Great location but room service was slow.',
           ),
         ],
+        tags: ['pool', 'luxury', 'view'],
       ),
       const PlaceModel(
         id: 5,
@@ -59,6 +60,7 @@ class PlacesRepositoryImpl implements PlacesRepository {
             comment: 'Okay for the price.',
           ),
         ],
+        tags: ['cheap', 'sleep'],
       ),
       const PlaceModel(
         id: 2,
@@ -67,6 +69,7 @@ class PlacesRepositoryImpl implements PlacesRepository {
         latitude: 11.260,
         longitude: 75.790,
         distance: 3.5,
+        tags: ['history', 'indoor'],
       ),
       const PlaceModel(
         id: 3,
@@ -75,6 +78,7 @@ class PlacesRepositoryImpl implements PlacesRepository {
         latitude: 11.255,
         longitude: 75.770,
         distance: 1.2,
+        tags: ['parking'],
       ),
       const PlaceModel(
         id: 4,
@@ -83,6 +87,39 @@ class PlacesRepositoryImpl implements PlacesRepository {
         latitude: 11.265,
         longitude: 75.785,
         distance: 0.8,
+        tags: [
+          'spicy',
+          'food',
+          'hot_beverage',
+          'cozy',
+          'indoor',
+        ], // Good for rain
+      ),
+      const PlaceModel(
+        id: 6,
+        name: "Tea Valley",
+        type: "food",
+        latitude: 11.270,
+        longitude: 75.780,
+        distance: 1.5,
+        rating: 4.8,
+        imageUrl:
+            "https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=1021&q=80",
+        description: "Best tea in town with a view.",
+        tags: ['tea', 'hot_beverage', 'cozy', 'view', 'indoor'],
+      ),
+      const PlaceModel(
+        id: 7,
+        name: "Cool Scoops",
+        type: "food",
+        latitude: 11.275,
+        longitude: 75.785,
+        distance: 0.5,
+        rating: 4.2,
+        imageUrl:
+            "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80",
+        description: "Delicious ice creams for sunny days.",
+        tags: ['ice_cream', 'cold_beverage', 'outdoor', 'sunny'],
       ),
     ];
 

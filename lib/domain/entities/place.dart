@@ -26,7 +26,10 @@ class Place extends Equatable {
     this.rating,
     this.imageUrl,
     this.reviews,
+    this.tags = const [],
   });
+
+  final List<String> tags;
 
   @override
   List<Object?> get props => [
@@ -41,5 +44,6 @@ class Place extends Equatable {
     rating,
     imageUrl,
     reviews,
+    tags,
   ];
 }
