@@ -120,13 +120,26 @@ class _MapViewState extends State<MapView> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: () {
-                        // Return the location name (using search text or default)
-                        Navigator.pop(
-                          context,
-                          _searchController.text.isEmpty
-                              ? 'Custom Location'
-                              : _searchController.text,
-                        );
+                        final currentState = context.read<MapCubit>().state;
+                        LatLng? selectedLocation;
+                        if (currentState is MapLoaded) {
+                          selectedLocation = currentState.currentLocation;
+                        }
+
+                        if (selectedLocation != null) {
+                          Navigator.pop(context, {
+                            'location': selectedLocation,
+                            'name': _searchController.text.isEmpty
+                                ? 'Pinned Location'
+                                : _searchController.text,
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please wait for map to load'),
+                            ),
+                          );
+                        }
                       },
                       child: const Text(
                         'Select This Location',
