@@ -12,17 +12,20 @@ class TrendingPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => TrendingCubit()..loadTrendingSpots(),
       child: Scaffold(
-        backgroundColor: Colors.black, // Dark theme for viral content
+        backgroundColor: const Color(0xFFF5F7FA), // Light Theme
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ), // Dark Back Button
             onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
             'Trending Nearby 🔥',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         ),
         body: BlocBuilder<TrendingCubit, TrendingState>(
@@ -41,7 +44,7 @@ class TrendingPage extends StatelessWidget {
                       child: Text(
                         'Viral On TikTok & Insta 📸',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
+                          color: Colors.black, // Dark Text
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -55,7 +58,7 @@ class TrendingPage extends StatelessWidget {
               return Center(
                 child: Text(
                   state.message,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                 ),
               );
             }
@@ -89,7 +92,10 @@ class _StoriesRow extends StatelessWidget {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [Colors.purple, Colors.orange],
+                    colors: [
+                      Colors.teal,
+                      Colors.green,
+                    ], // Teal/Green implementation
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -97,7 +103,7 @@ class _StoriesRow extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(3),
                   decoration: const BoxDecoration(
-                    color: Colors.black,
+                    color: Colors.white, // White border
                     shape: BoxShape.circle,
                   ),
                   child: CircleAvatar(
@@ -108,8 +114,11 @@ class _StoriesRow extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                spot.name.split(' ').first, // First name only
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                spot.name.split(' ').first,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                ), // Dark Text
               ),
             ],
           );
