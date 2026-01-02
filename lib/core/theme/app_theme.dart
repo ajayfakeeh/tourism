@@ -16,7 +16,7 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: secondaryColor,
-        background: backgroundColor,
+        surface: backgroundColor,
       ),
       fontFamily:
           'Roboto', // Using default, can be replaced with Google Fonts later

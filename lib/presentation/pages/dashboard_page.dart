@@ -5,11 +5,9 @@ import 'package:location/domain/entities/place.dart';
 import 'package:location/domain/entities/weather.dart';
 import 'package:location/presentation/cubit/dashboard/dashboard_cubit.dart';
 import 'package:location/presentation/cubit/dashboard/dashboard_state.dart';
-import 'package:location/presentation/pages/add_place_page.dart';
-import 'package:location/presentation/pages/homepage.dart';
-import 'package:location/presentation/pages/hotel_details_page.dart';
-import 'package:location/presentation/pages/map_page.dart';
-import 'package:location/presentation/pages/places_page.dart';
+import 'package:location/presentation/pages/home/homepage.dart';
+import 'package:location/presentation/pages/hotel_details/hotel_details_page.dart';
+import 'package:location/presentation/pages/places/places_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});

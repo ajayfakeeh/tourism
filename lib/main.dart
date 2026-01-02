@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/di/injector.dart';
 import 'package:location/presentation/cubit/auth/auth_cubit.dart';
-import 'package:location/presentation/cubit/auth/auth_cubit.dart';
-import 'package:location/presentation/pages/splash_screen.dart';
+import 'package:location/presentation/pages/splash/splash_screen.dart';
 import 'package:location/core/theme/app_theme.dart';
 
 void main() async {
