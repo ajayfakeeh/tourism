@@ -18,6 +18,7 @@ import 'package:location/presentation/pages/home/widgets/forgot_to_save_list.dar
 import 'package:location/presentation/pages/home/widgets/just_before_arrive_section.dart';
 import 'package:location/presentation/pages/home/widgets/filter_chips.dart';
 import 'package:location/presentation/pages/home/widgets/near_destination_list.dart';
+import 'package:location/presentation/pages/home/widgets/create_plan_strip.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -59,6 +60,8 @@ class HomePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       const HeroSection(),
+                      const SizedBox(height: 24),
+                      const CreatePlanStrip(),
                       const SizedBox(height: 24),
                       CurrentRouteCard(
                         weather: state.weather,
